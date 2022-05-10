@@ -1,0 +1,16 @@
+<!-- templates/posts/group_list.html --> 
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1> Записи сообщества:</h1>
+  <h1> {{ group.title }} </h1>
+  <p>
+    {{ group.description }}
+  </p>
+  {% for post in page_obj %}
+      {% include 'includes/article.html' %}
+    {% if not forloop.last %}<hr>{% endif %}
+  {% endfor %}
+  <!-- под последним постом нет линии -->
+  {% include 'includes/paginator.html' %}
+{% endblock %}  
