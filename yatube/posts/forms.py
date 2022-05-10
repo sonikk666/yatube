@@ -9,14 +9,6 @@ class PostForm(ModelForm):
         model = Post
         # Поля модели, которые должны отображаться в веб-форме
         fields = ('text', 'group', 'image')
-        # labels = {
-        #     'text': 'Текст поста',
-        #     'group': 'Название группы',
-        # }
-        # help_texts = {
-        #     'text': 'Текст нового поста',
-        #     'group': 'Группа, к которой будет относиться пост',
-        # }
 
 
 class CommentForm(ModelForm):

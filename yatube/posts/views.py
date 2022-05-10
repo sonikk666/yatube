@@ -163,7 +163,7 @@ def follow_index(request):
 
 @login_required
 def profile_follow(request, username):
-    # Подписаться на автора
+    """Подписаться на автора."""
     user = request.user
     author = get_object_or_404(User, username=username)
     is_exist = Follow.objects.filter(user=user, author=author).exists()
@@ -177,7 +177,7 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
-    # Дизлайк, отписка
+    """Отписаться от автора."""
     user = request.user
     author = get_object_or_404(User, username=username)
     Follow.objects.filter(user=user, author=author).delete()
