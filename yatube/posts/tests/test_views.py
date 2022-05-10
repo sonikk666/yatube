@@ -272,7 +272,6 @@ class FollowsViewsTest(TestCase):
         self.no_follower_client = Client()
         self.no_follower_client.force_login(self.no_follower)
 
-
     def test_pages_follows_uses_correct_template(self):
         """URL-адрес follow_index использует соответствующий шаблон."""
         response = self.follower_client.get(
@@ -310,17 +309,23 @@ class FollowsViewsTest(TestCase):
         подписываться на других пользователей."""
         # Подписываемся на автора
         self.no_follower_client.get(
-            reverse('posts:profile_follow', kwargs={'username': 'TestAuthorNameNew'})
+            reverse(
+                'posts:profile_follow',
+                kwargs={'username': 'TestAuthorNameNew'}
+            )
         )
         response = self.no_follower_client.get(reverse('posts:follow_index'))
         self.assertIn(self.post_new, response.context['page_obj'])
-       
+
     def test_profile_unfollow(self):
         """Авторизованный пользователь может
         удалять из подписок других пользователей."""
         # Отписываемся от автора
         self.no_follower_client.get(
-            reverse('posts:profile_unfollow', kwargs={'username': 'TestAuthorNameNew'})
+            reverse(
+                'posts:profile_unfollow',
+                kwargs={'username': 'TestAuthorNameNew'}
+            )
         )
         response = self.no_follower_client.get(reverse('posts:follow_index'))
         self.assertNotIn(self.post_new, response.context['page_obj'])

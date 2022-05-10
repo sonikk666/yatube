@@ -180,7 +180,9 @@ class CommentCreateFormTests(TestCase):
         }
         # Отправляем POST-запрос
         response = self.authorized_client.post(
-            reverse('posts:add_comment', kwargs={'post_id': self.post_comment.id}),
+            reverse(
+                'posts:add_comment', kwargs={'post_id': self.post_comment.id}
+            ),
             data=form_data,
             follow=True
         )
