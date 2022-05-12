@@ -16,4 +16,8 @@ class Migration(migrations.Migration):
             name='group',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='posts', to='posts.Group'),
         ),
+        migrations.AlterModelOptions(
+            name='post',
+            options={'ordering': ['-pub_date']},
+        ),
     ]

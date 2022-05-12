@@ -11,10 +11,8 @@
         <!-- если у поста есть группа -->   
         {% if post.group %}
           <li class="list-group-item">
-            Группа: {{ post.group }}
-            <a href="{% url 'posts:group_list' post.group.slug %}">
-              <br>все записи группы
-            </a>
+            Группа: {{ post.group.title }}
+            <br><a href="{% url 'posts:group_list' post.group.slug %}">все записи группы</a>
           </li>
           <li class="list-group-item">
         {% endif %}
@@ -24,9 +22,7 @@
           Всего постов автора:  <span > {{ posts_count }} </span>
         </li>
         <li class="list-group-item">
-          <a href="{% url 'posts:profile' post.author %}">
-            все посты пользователя
-          </a>
+          <a href="{% url 'posts:profile' post.author %}">все посты пользователя</a>
         </li>
       </ul>
     </aside>
@@ -39,9 +35,8 @@
       </p>
       <!-- эта кнопка видна только автору -->
       {% if post.author == request.user %}
-        <a class="btn btn-primary" href="{% url 'posts:post_edit' post_id=post.pk %}">
-          редактировать запись
-        </a>
+        <a class="btn btn-primary" 
+        href="{% url 'posts:post_edit' post_id=post.pk %}">редактировать запись</a>
       {% endif %}
       {% include 'includes/comments.html' %}
     </article>

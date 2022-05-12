@@ -1,14 +1,15 @@
-from django.core.cache import cache
 import shutil
 import tempfile
+
+from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
-from django import forms
 
-from posts.models import Group, Post, Comment, Follow
+from posts.models import Comment, Follow, Group, Post
 
 User = get_user_model()
 
@@ -193,28 +194,32 @@ class PostPagesTest(MyViewsTest):
         response = self.client.get(
             reverse('posts:add_comment', kwargs={'post_id': self.post.id})
         )
+        redirect = (
+            reverse("users:login") + '?next='
+            + reverse("posts:add_comment", kwargs={"post_id": self.post.id})
+        )
         self.assertRedirects(
             response,
-            f'{reverse("users:login")}?next='
-            f'{reverse("posts:add_comment", kwargs={"post_id": self.post.id})}'
+            redirect
         )
 
     def test_cache_index_page(self):
-        """Кеширование главной страницы."""
-        Post.objects.create(
-            author=self.author,
-            text='Пост для удаления',
-        )
+        """Пост на главной странице сохраняется в кеше."""
         cache.clear()
-        response = self.client.get(reverse('posts:index'))
-        cache_check = response.content
+        response_cache = self.client.get(reverse('posts:index'))
+        cache_check = response_cache.content
         post = Post.objects.latest('pub_date')
         post.delete()
-        response = self.client.get(reverse('posts:index'))
-        self.assertEqual(response.content, cache_check)
+        response_delete = self.client.get(reverse('posts:index'))
+        self.assertEqual(response_delete.content, cache_check)
+
+    def test_cache_clear_index_page(self):
+        """Пост на главной странице пропадает после очисти кеша."""
+        response_cache = self.client.get(reverse('posts:index'))
+        cache_check = response_cache.content
         cache.clear()
-        response = self.client.get(reverse('posts:index'))
-        self.assertNotEqual(response.content, cache_check)
+        response_clear = self.client.get(reverse('posts:index'))
+        self.assertNotEqual(response_clear.content, cache_check)
 
 
 class PaginatorViewsTest(MyViewsTest):
@@ -222,11 +227,13 @@ class PaginatorViewsTest(MyViewsTest):
         """Cтраницы содержат нужное количетсво записей."""
         # Здесь создаются ещё 12 тестовых записей.
         for post_number in range(12):
-            self.post = Post.objects.create(
-                author=self.author,
-                group=self.group_1,
-                text=f'Тестовый пост_{post_number}',
-            )
+            Post.objects.bulk_create([
+                Post(
+                    author=self.author,
+                    group=self.group_1,
+                    text=f'Тестовый пост_{post_number}',
+                )
+            ])
         POSTS_ON_PAGE_1 = 10
         POSTS_ON_PAGE_2 = 3
 
@@ -305,8 +312,10 @@ class FollowsViewsTest(TestCase):
         self.assertNotContains(response, self.post_new.text)
 
     def test_profile_follow(self):
-        """Авторизованный пользователь может
-        подписываться на других пользователей."""
+        """Авторизованный пользователь может подписываться
+        на других пользователей."""
+        # Подсчитаем количество подписок
+        follow_count = Follow.objects.count()
         # Подписываемся на автора
         self.no_follower_client.get(
             reverse(
@@ -314,18 +323,20 @@ class FollowsViewsTest(TestCase):
                 kwargs={'username': 'TestAuthorNameNew'}
             )
         )
-        response = self.no_follower_client.get(reverse('posts:follow_index'))
-        self.assertIn(self.post_new, response.context['page_obj'])
+        # Проверяем, увеличилось ли количество подписок
+        self.assertEqual(Follow.objects.count(), follow_count + 1)
 
     def test_profile_unfollow(self):
-        """Авторизованный пользователь может
-        удалять из подписок других пользователей."""
+        """Авторизованный пользователь может отписываться
+        от других пользователей."""
+        # Подсчитаем количество подписок
+        follow_count = Follow.objects.count()
         # Отписываемся от автора
-        self.no_follower_client.get(
+        self.follower_client.get(
             reverse(
                 'posts:profile_unfollow',
                 kwargs={'username': 'TestAuthorNameNew'}
             )
         )
-        response = self.no_follower_client.get(reverse('posts:follow_index'))
-        self.assertNotIn(self.post_new, response.context['page_obj'])
+        # Проверяем, уменьшилось ли количество подписок
+        self.assertEqual(Follow.objects.count(), follow_count - 1)
