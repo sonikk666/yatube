@@ -195,8 +195,8 @@ class PostPagesTest(MyViewsTest):
             reverse('posts:add_comment', kwargs={'post_id': self.post.id})
         )
         redirect = (
-            reverse("users:login") + '?next='
-            + reverse("posts:add_comment", kwargs={"post_id": self.post.id})
+            reverse('users:login') + '?next='
+            + reverse('posts:add_comment', kwargs={'post_id': self.post.id})
         )
         self.assertRedirects(
             response,
