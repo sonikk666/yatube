@@ -7,10 +7,14 @@ User = get_user_model()
 
 
 class Group(models.Model):
-    """Модель группы для сообщений"""
-    title = models.CharField(max_length=200)
-    slug = models.SlugField(unique=True)
-    description = models.TextField()
+    """Модель групп для сообщений"""
+    class Meta:
+        verbose_name = 'Группа'
+        verbose_name_plural = 'Группы'
+
+    title = models.CharField('Название группы', max_length=200)
+    slug = models.SlugField('URL', unique=True)
+    description = models.TextField('Описание')
 
     def __str__(self) -> str:
         """Отображает название группы."""
@@ -59,6 +63,11 @@ class Post(models.Model):
 
 
 class Comment(CreatedModel):
+    """Модель комментариев."""
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+
     post = models.ForeignKey(
         Post,
         verbose_name='Пост',
@@ -78,6 +87,11 @@ class Comment(CreatedModel):
 
 
 class Follow(models.Model):
+    """Модель подписок."""
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+
     user = models.ForeignKey(
         User,
         verbose_name='Подписчик',

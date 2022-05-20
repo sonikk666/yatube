@@ -58,12 +58,16 @@ def profile(request, username):
     page_obj = paginator.get_page(page_number)
     posts_count = posts.count()
     following = author.following.exists()
+    following_count = author.following.all().count()
+    follower_count = author.follower.all().count()
 
     context = {
         'page_obj': page_obj,
         'author': author,
         'posts_count': posts_count,
         'following': following,
+        'following_count': following_count,
+        'follower_count': follower_count,
     }
     return render(
         request,
@@ -79,11 +83,15 @@ def post_detail(request, post_id):
     posts_count = author.posts.count()
     comments = post.comments.all()
     form = CommentForm(request.POST or None)
+    following_count = author.following.all().count()
+    follower_count = author.follower.all().count()
     context = {
         'post': post,
         'posts_count': posts_count,
         'form': form,
         'comments': comments,
+        'following_count': following_count,
+        'follower_count': follower_count,
     }
     return render(
         request,

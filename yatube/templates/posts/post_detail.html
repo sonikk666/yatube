@@ -14,11 +14,13 @@
             Группа: {{ post.group.title }}
             <br><a href="{% url 'posts:group_list' post.group.slug %}">все записи группы</a>
           </li>
-          <li class="list-group-item">
         {% endif %}
-            Автор: {{ post.author.get_full_name }}
-          </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
+        <li class="list-group-item">
+          Автор: {{ post.author.get_full_name }}
+          <br>Подписчики: {{ following_count }}
+          <br>Подписан: {{ follower_count }}
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
           Всего постов автора:  <span > {{ posts_count }} </span>
         </li>
         <li class="list-group-item">
